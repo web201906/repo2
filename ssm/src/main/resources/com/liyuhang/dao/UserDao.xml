@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.liyuhang.dao.UserDao">
+
+    <resultMap id="userMap" type="user">
+       <id property="id" column="id"></id>
+        <result property="username" column="username"></result>
+        <result property="birthday" column="birthday"></result>
+        <result property="sex" column="sex"></result>
+        <result property="address" column="address"></result>
+
+        <collection property="roles" ofType="role">
+            <id property="roleId" column="rid"></id>
+            <result property="roleName" column="role_name"></result>
+            <result property="roleDesc" column="role_desc"></result>
+        </collection>
+    </resultMap>
+
+    <sql id="default">
+         select * from user where username like #{username}
+    </sql>
+
+    <select id="findAll" resultMap="userMap">
+         <!--
+         select u.*,r.id as rid,r.role_name,r.role_desc from user u
+         left outer join user_role ur on u.id=ur.uid
+         left outer join role r on ur.rid=r.id
+         -->
+        select u.*,r.id as rid,r.role_name,r.role_desc from user u
+        left outer join user_role ur  on u.id = ur.uid
+        left outer join role r on r.id = ur.rid
+    </select>
+    
+    <select id="moFuFind" parameterType="user" resultType="user" >
+        select * from user where username like #{username}
+    </select>
+
+    <select id="zhiJieFind" parameterType="string" resultMap="userMap">
+        <include refid="default"></include>
+    </select>
+
+    <select id="conditionFind" parameterType="user" resultMap="userMap">
+        select * from user
+        <where>
+            <if test="username !=null">
+                username like #{username}
+            </if>
+            <if test="sex !=null">
+                and sex=#{sex}
+            </if>
+        </where>
+    </select>
+
+    <select id="findInIds" parameterType="user" resultType="user">
+        select * from user
+        <where>
+            <if test="ids !=null and ids.size()>0">
+                <foreach collection="ids" open="id in (" close=")" item="fuck" separator=",">
+                    #{fuck}
+                </foreach>
+            </if>
+        </where>
+    </select>
+
+
+
+
+</mapper>
